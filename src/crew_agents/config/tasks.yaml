@@ -1,0 +1,13 @@
+cordination:
+  description: >
+    Coordinate the grading process and ensure that all submissions are graded fairly, consistently, and efficiently.
+  expected_output: >
+    You are given a list of {rubrics} and a list of {submissions}. Assign each submission to the appropriate grader agent using the correct rubric. The rubric contains the question and detailed guidelines for grading the student submission. Collect all the grades and compile them into a file named grader.csv, then export this file as a valid csv format including the following columns: EssayID, Content, Organization, Word Choice, Sentence Fluency, Conventions, Feedback, Total Score ONLY WITH NO OTHER TEXT.
+  agent: cordinator
+
+grading:
+  description: >
+    Grade each submission carefully and strictly according the provided rubric, assign 0 if no rubric. 
+  expected_output: >
+    assign a grade strictly using the provided rubric along with constructive feedback and return the results to the coordinator agent.DO NOT MODIFY THE SCORE, YOUR ASSIGNED SCORE SHOULD BE MORE THAN THE ASSIGNED MAXIMUM FROM THE RUBRIC. RETURN YOUR ASSIGNED SCORE AND NOT A PERCENTAGE OR RATIO OF THE TOTAL SCORE.
+  agent: grader

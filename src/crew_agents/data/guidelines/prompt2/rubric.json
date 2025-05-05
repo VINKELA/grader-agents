@@ -1,0 +1,317 @@
+{
+  "prompt": {
+    "id": "Prompt 2",
+    "title": "Censorship in the Libraries",
+    "description": "\"All of us can think of a book that we hope none of our children or any other children have taken off the shelf. But if I have the right to remove that book from the shelf -- that work I abhor -- then you also have exactly the same right and so does everyone else. And then we have no books left on the shelf for any of us.\" --Katherine Paterson, Author\n\nWrite a persuasive essay to a newspaper reflecting your views on censorship in libraries. Do you believe that certain materials, such as books, music, movies, magazines, etc., should be removed from the shelves if they are found offensive? Support your position with convincing arguments from your own experience, observations, and/or reading.",
+    "genre": "Persuasive Essay",
+    "audience": "Newspaper readers",
+    "attributes": [
+      "Ideas & Content",
+      "Organization",
+      "Word Choice",
+      "Sentence Fluency",
+      "Conventions"
+    ]
+  },
+  "scoring_guidelines": {
+    "ideas_content": {
+      "description": "This property checks for the amount of content and ideas present in the essay.",
+      "levels": [
+        {
+          "score": 6,
+          "description": "The writing is exceptionally clear, focused, and interesting. It holds the reader's attention throughout.",
+          "characteristics": [
+            "Clarity, focus, and control",
+            "Main ideas that stand out",
+            "Supporting, relevant, carefully selected details",
+            "Thorough, balanced, in-depth explanation of the topic",
+            "Content well-suited to audience and purpose"
+          ]
+        },
+        {
+          "score": 5,
+          "description": "The writing is clear, focused and interesting. It holds the reader's attention.",
+          "characteristics": [
+            "Clarity, focus, and control",
+            "Main ideas that stand out",
+            "Supporting, relevant details",
+            "Thorough, balanced explanation of the topic",
+            "Content suitable to audience and purpose"
+          ]
+        },
+        {
+          "score": 4,
+          "description": "The writing is clear and focused. The reader can easily understand the main ideas.",
+          "characteristics": [
+            "Easily identifiable purpose",
+            "Clear main ideas",
+            "Relevant but sometimes general supporting details",
+            "Topic explored with some connections and insights",
+            "Relevant but not consistently well-chosen details"
+          ]
+        },
+        {
+          "score": 3,
+          "description": "The reader can understand the main ideas, although they may be overly broad or simplistic.",
+          "characteristics": [
+            "Identifiable purpose and main ideas",
+            "Predictable or overly-obvious main ideas",
+            "Attempted but limited support",
+            "Details may be based on clichés or stereotypes",
+            "Difficulty moving from general to specific"
+          ]
+        },
+        {
+          "score": 2,
+          "description": "Main ideas and purpose are somewhat unclear or development is minimal.",
+          "characteristics": [
+            "Purpose and main ideas may require extensive inference",
+            "Minimal development; insufficient details",
+            "Irrelevant details that clutter the text",
+            "Extensive repetition of detail"
+          ]
+        },
+        {
+          "score": 1,
+          "description": "The writing lacks a central idea or purpose.",
+          "characteristics": [
+            "Ideas extremely limited or unclear",
+            "Minimal or nonexistent development",
+            "Paper too short to demonstrate idea development"
+          ]
+        }
+      ]
+    },
+    "organization": {
+      "description": "This property checks how well structured the essay is.",
+      "note": "Since the dataset has the essays compressed into one line, please bear in mind that the paragraph information is lost. Hence, give writers the benefit of the doubt here.",
+      "levels": [
+        {
+          "score": 6,
+          "description": "The essay is well-organized with clear flow of ideas and appropriate form as a persuasive essay."
+        },
+        {
+          "score": 5,
+          "description": "The essay shows good organization with flow of ideas and appropriate form as a persuasive essay."
+        },
+        {
+          "score": 4,
+          "description": "The essay shows satisfactory organization with basic introduction, body and conclusion."
+        },
+        {
+          "score": 3,
+          "description": "The essay shows some organization but may not be in proper essay form and ideas not necessarily self-contained."
+        },
+        {
+          "score": 2,
+          "description": "Shows little or no evidence of organization."
+        },
+        {
+          "score": 1,
+          "description": "The essay is awkward and fragmented with ideas not self-contained."
+        }
+      ]
+    },
+    "word_choice": {
+      "description": "Evaluates the effectiveness and appropriateness of word selection.",
+      "levels": [
+        {
+          "score": 6,
+          "description": "Words convey the message in an exceptionally interesting, precise, and natural way.",
+          "characteristics": [
+            "Accurate, strong, specific words",
+            "Fresh, original expression",
+            "Striking and varied vocabulary",
+            "Ordinary words used unusually",
+            "Words that evoke strong images"
+          ]
+        },
+        {
+          "score": 5,
+          "description": "Words convey the message in an interesting, precise, and natural way.",
+          "characteristics": [
+            "Accurate, specific words",
+            "Fresh, vivid expression",
+            "Striking and varied vocabulary",
+            "Ordinary words used unusually",
+            "Words that evoke clear images"
+          ]
+        },
+        {
+          "score": 4,
+          "description": "Words effectively convey the intended message.",
+          "characteristics": [
+            "Functional words",
+            "Expression that is functional",
+            "Occasional overdone colorful language",
+            "Rare experiments with language"
+          ]
+        },
+        {
+          "score": 3,
+          "description": "Language lacks precision and variety, or may be inappropriate in places.",
+          "characteristics": [
+            "Familiar words and phrases",
+            "Mundane and general expression",
+            "Overdone or forced colorful language",
+            "Reliance on clichés"
+          ]
+        },
+        {
+          "score": 2,
+          "description": "Language is monotonous and/or misused, detracting from meaning.",
+          "characteristics": [
+            "Colorless, flat or imprecise words",
+            "Monotonous repetition",
+            "Worn expressions"
+          ]
+        },
+        {
+          "score": 1,
+          "description": "Extremely limited vocabulary or filled with misuses of words.",
+          "characteristics": [
+            "General, vague words",
+            "Extremely limited range",
+            "Words that don't fit the text"
+          ]
+        }
+      ]
+    },
+    "sentence_fluency": {
+      "description": "Evaluates the flow and rhythm of sentences.",
+      "levels": [
+        {
+          "score": 6,
+          "description": "The writing has an effective flow and rhythm with consistently strong and varied structure.",
+          "characteristics": [
+            "Natural, fluent sound",
+            "Extensive variation in sentence structure",
+            "Sentence structure enhances meaning",
+            "Varied sentence patterns",
+            "Strong control over sentence structure"
+          ]
+        },
+        {
+          "score": 5,
+          "description": "The writing has an easy flow and rhythm with carefully crafted sentences.",
+          "characteristics": [
+            "Natural, fluent sound",
+            "Variation in sentence structure",
+            "Sentence structure enhances meaning",
+            "Control over sentence structure"
+          ]
+        },
+        {
+          "score": 4,
+          "description": "The writing flows, but connections may be less than fluid.",
+          "characteristics": [
+            "Natural sound but may lack rhythm",
+            "Some repeated patterns",
+            "Strong control over simple sentences",
+            "Occasional lapses in stylistic control"
+          ]
+        },
+        {
+          "score": 3,
+          "description": "The writing tends to be mechanical rather than fluid.",
+          "characteristics": [
+            "Some passages invite fluid reading",
+            "Some variety but repetitive patterns",
+            "Good control over simple sentences",
+            "Lapses in stylistic control"
+          ]
+        },
+        {
+          "score": 2,
+          "description": "The writing tends to be either choppy or rambling.",
+          "characteristics": [
+            "Difficult to follow or read aloud",
+            "Monotonous sentence patterns",
+            "Awkward, choppy constructions"
+          ]
+        },
+        {
+          "score": 1,
+          "description": "The writing is difficult to follow or to read aloud.",
+          "characteristics": [
+            "Text not inviting smooth reading",
+            "Confusing word order",
+            "Sentence structure obscures meaning"
+          ]
+        }
+      ]
+    },
+    "conventions": {
+      "description": "Evaluates control of standard writing conventions.",
+      "levels": [
+        {
+          "score": 6,
+          "description": "Exceptionally strong control of standard writing conventions.",
+          "characteristics": [
+            "Strong control of conventions",
+            "Effective use of punctuation",
+            "Correct spelling",
+            "Correct grammar and usage",
+            "Little or no need for editing"
+          ]
+        },
+        {
+          "score": 5,
+          "description": "Strong control of standard writing conventions.",
+          "characteristics": [
+            "Strong control of conventions",
+            "Effective punctuation",
+            "Correct spelling",
+            "Correct grammar and usage",
+            "Little need for editing"
+          ]
+        },
+        {
+          "score": 4,
+          "description": "Control of standard writing conventions.",
+          "characteristics": [
+            "Control over conventions",
+            "Correct end-of-sentence punctuation",
+            "Usually correct spelling",
+            "Occasional lapses in grammar",
+            "Moderate need for editing"
+          ]
+        },
+        {
+          "score": 3,
+          "description": "Limited control of standard writing conventions.",
+          "characteristics": [
+            "Some control over basic conventions",
+            "Usually correct end punctuation",
+            "Spelling errors that distract",
+            "Errors in grammar that distract",
+            "Significant need for editing"
+          ]
+        },
+        {
+          "score": 2,
+          "description": "Little control of standard writing conventions.",
+          "characteristics": [
+            "Little control over basic conventions",
+            "Many punctuation errors",
+            "Frequent spelling errors",
+            "Errors that interfere with readability",
+            "Substantial need for editing"
+          ]
+        },
+        {
+          "score": 1,
+          "description": "Numerous errors in usage, spelling, capitalization, and punctuation.",
+          "characteristics": [
+            "Very limited skill in conventions",
+            "Basic punctuation omitted or incorrect",
+            "Frequent spelling errors",
+            "Random capitalization",
+            "Need for extensive editing"
+          ]
+        }
+      ]
+    }
+  },
+  "additional_notes": "In case of doubts between ratings, award the LOWER grade when there is not enough information or the text is too short."
+}
