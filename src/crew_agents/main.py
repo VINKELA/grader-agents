@@ -25,7 +25,16 @@ def run():
     
     input = {
         'rubrics': rubrics,
-        'submissions': submissions
+        'submissions': submissions,
+        'max_number_of_retries': 1,
+        'output_folder': "gradedData",
+        'log_file': "log.txt",
+        'summary_file_name': "grades.csv",
+        'grader_agent_file_name': "grader_agent.csv",
+        'summary_categories': ['EssayID','PromptID','AverageContent', 'AverageOrganization', 'AverageWordChoice', 'AverageSentenceFluency', 'AverageConventions', 
+                                 "FeedbackSimilarityScore", "AverageFeedbackAdherenceToRubrics"],
+        'agent_categories': ['EssayID','PromptID','Content', 'Organization', 'WordChoice', 'SentenceFluency', 'Conventions', 
+                               "Feedback"]
     }
     try:
         CrewAgents().crew().kickoff(inputs=input)

@@ -1,13 +1,70 @@
 cordination:
   description: >
     Coordinate the grading process and ensure that all submissions are graded fairly, consistently, and efficiently.
+    Think step by step:
+    - First plan how to match rubrics to submissions.
+    - Then assign each submission to FOUR separate grader agents, all working independently on the same submission.
+    - Plan how you will collect all four grader outputs.
+    - for feedback, calculate the similarity of the feedback from the four graders and average adherence to rubric of the four feedbacks.
+    - Append the raw individual results (before averaging) into a file called {output_folder}/{grader_agent_file_name}.
+    - Then calculate the mean score for each category and compile the final result into {output_folder}/{summary_file_name}.
+    Avoid infinite loops or repeated checks — make sure each action is done once and only once.
   expected_output: >
-    You are given a list of {rubrics} and a list of {submissions}. Assign each submission to the appropriate grader agent using the correct rubric. The rubric contains the question and detailed guidelines for grading the student submission. Collect all the grades and compile them into a file named grader.csv, then export this file as a valid csv format including the following columns: EssayID, Content, Organization, Word Choice, Sentence Fluency, Conventions, Feedback, Total Score ONLY WITH NO OTHER TEXT.
+    You are given a list of {rubrics} and a list of {submissions}.
+    Assign each submission to FOUR grader agents using the correct rubric.
+    Each grader agent works independently.
+    After collecting the four grading results, append their raw scores and  feedback adherence to rubric as individual lines into {output_folder}/{grader_agent_file_name}.
+    Then calculate the mean for each category {agent_categories} except feedback.
+    Compile all merged results into {output_folder}/{summary_file_name} with headers {summary_categories}.
+    The individual grader results should be in the {output_folder}/{grader_agent_file_name} file with headers {agent_categories}.
+    Both CSV files must be valid:
+    - ONLY raw CSV content.
+    - NO summaries, NO explanations, NO markdown, NO extra text.
+    Ensure the process finishes cleanly without looping or adding extra chat.
   agent: cordinator
 
 grading:
   description: >
-    Grade each submission carefully and strictly according the provided rubric, assign 0 if no rubric. 
+    Grade each submission carefully and strictly according the provided rubric, assign 0 if no rubric.
+    Think through the rubric step by step:
+    - Understand the rubric categories.
+    - Plan how to evaluate each part of the student submission.
+    - Execute the grading carefully following your plan.
+    Do not get stuck in repeated grading or re-evaluating the same submission — perform each grading once and finish cleanly.
   expected_output: >
-    assign a grade strictly using the provided rubric along with constructive feedback and return the results to the coordinator agent.DO NOT MODIFY THE SCORE, YOUR ASSIGNED SCORE SHOULD BE MORE THAN THE ASSIGNED MAXIMUM FROM THE RUBRIC. RETURN YOUR ASSIGNED SCORE AND NOT A PERCENTAGE OR RATIO OF THE TOTAL SCORE.
+    Assign a grade strictly using the provided rubric along with constructive feedback and return the results to the coordinator agent.
+    Think and plan before grading:
+    - Break down the rubric criteria.
+    - Check each criterion one by one.
+    - Assign points thoughtfully.
+    - Prepare clear feedback that aligns with the rubric.
+    - the output to the cordinator agent should be a CSV line with the following columns:{agent_categories}
+    DO NOT MODIFY THE SCORE, YOUR ASSIGNED SCORE SHOULD BE MORE THAN THE ASSIGNED MAXIMUM FROM THE RUBRIC.
+    RETURN YOUR ASSIGNED SCORE AND NOT A PERCENTAGE OR RATIO OF THE TOTAL SCORE.
+    Ensure the process completes without looping or repeated action.
   agent: grader
+
+reflection:
+  description: >
+    Review the final {output_folder}/{summary_file_name} file AND the {output_folder}/{grader_agent_file_name} file produced by the coordinator agent.
+    Use the provided read_csv_file tool to read the contents of both files.
+    Think step by step:
+    - First, plan what you will check.
+    - Then carefully read each file and go over each check one by one.
+    Specifically check that:
+    - Each file contains ONLY raw CSV content (no summaries, no explanations, no markdown, no extra text).
+    - Each starts directly with the CSV header line.
+    - Each includes all required columns (based on whether it’s individual or merged data).
+    - All rows are valid CSV rows with correct formatting.
+    After completing all checks, plan your final response.
+    If both files pass all checks, approve them as final.
+    If any file fails, politely request the coordinator agent to improve it, specifying exactly what is wrong and what needs to be fixed.
+    Do not attempt to regenerate or fix the CSV yourself — your role is strictly to review, approve, or provide improvement feedback.
+    Avoid infinite loops or repeated review cycles.
+  expected_output: >
+    One of two possible outputs:
+    (1) If both {output_folder}/{summary_file_name} and {output_folder}/{grader_agent_file_name} are valid, respond with: "Approved: Both {output_folder}/{summary_file_name} and {output_folder}/{grader_agent_file_name} are valid and final."
+    (2) If any file has problems, respond with a polite, specific feedback message explaining exactly what issues were found (e.g., extra text, wrong headers, bad formatting) and requesting the coordinator agent to fix them.
+    Your review should follow a clear, planned, and step-by-step chain of thought.
+    Your response should be precise, efficient, and clear.
+  agent: reflector
