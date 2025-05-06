@@ -21,7 +21,7 @@ def run():
     Run the crew.
     """
     rubrics, submissions = load_data()
-    submissions = submissions[1:3]
+    submissions = submissions[1:4]
     
     input = {
         'rubrics': rubrics,
@@ -34,7 +34,8 @@ def run():
         'summary_categories': ['EssayID','PromptID','AverageContent', 'AverageOrganization', 'AverageWordChoice', 'AverageSentenceFluency', 'AverageConventions', 
                                  "FeedbackSimilarityScore", "AverageFeedbackAdherenceToRubrics"],
         'agent_categories': ['EssayID','PromptID','Content', 'Organization', 'WordChoice', 'SentenceFluency', 'Conventions', 
-                               "Feedback"]
+                               "Feedback"],
+        'no_of_grader_agents': 3
     }
     try:
         CrewAgents().crew().kickoff(inputs=input)

@@ -3,23 +3,26 @@ cordination:
     Coordinate the grading process and ensure that all submissions are graded fairly, consistently, and efficiently.
     Think step by step:
     - First plan how to match rubrics to submissions.
-    - Then assign each submission to FOUR separate grader agents, all working independently on the same submission.
-    - Plan how you will collect all four grader outputs.
-    - for feedback, calculate the similarity of the feedback from the four graders and average adherence to rubric of the four feedbacks.
+    - Then assign each submission to {no_of_grader_agents} separate grader agents, all working independently on the same submission.
+    - Plan how you will collect all {no_of_grader_agents} grader outputs.
+    - for feedback, calculate the similarity of the feedback from the {no_of_grader_agents} graders and average adherence to rubric of the {no_of_grader_agents} feedbacks.
     - Append the raw individual results (before averaging) into a file called {output_folder}/{grader_agent_file_name}.
     - Then calculate the mean score for each category and compile the final result into {output_folder}/{summary_file_name}.
     Avoid infinite loops or repeated checks — make sure each action is done once and only once.
   expected_output: >
     You are given a list of {rubrics} and a list of {submissions}.
-    Assign each submission to FOUR grader agents using the correct rubric.
+    Assign each submission to {no_of_grader_agents} grader agents using the correct rubric.
     Each grader agent works independently.
-    After collecting the four grading results, append their raw scores and  feedback adherence to rubric as individual lines into {output_folder}/{grader_agent_file_name}.
+    After collecting the {no_of_grader_agents} grading results, append their raw scores and  feedback adherence to rubric as individual lines into {output_folder}/{grader_agent_file_name}.
     Then calculate the mean for each category {agent_categories} except feedback.
     Compile all merged results into {output_folder}/{summary_file_name} with headers {summary_categories}.
     The individual grader results should be in the {output_folder}/{grader_agent_file_name} file with headers {agent_categories}.
     Both CSV files must be valid:
     - ONLY raw CSV content.
     - NO summaries, NO explanations, NO markdown, NO extra text.
+    - for n number of submissions, the number of rows in  {output_folder}/{grader_agent_file_name} file  is n * number of agents that graded the submission .
+    - for n number of submissions, the number of rows in  {output_folder}/{summary_file_name} file  is n, one for each submission .
+
     Ensure the process finishes cleanly without looping or adding extra chat.
   agent: cordinator
 
@@ -32,12 +35,12 @@ grading:
     - Execute the grading carefully following your plan.
     Do not get stuck in repeated grading or re-evaluating the same submission — perform each grading once and finish cleanly.
   expected_output: >
-    Assign a grade strictly using the provided rubric along with constructive feedback and return the results to the coordinator agent.
+    Assign a grade strictly using the provided rubric along with constructive and detailed feedback and return the results to the coordinator agent.
     Think and plan before grading:
     - Break down the rubric criteria.
     - Check each criterion one by one.
     - Assign points thoughtfully.
-    - Prepare clear feedback that aligns with the rubric.
+    - Prepare clear feedback that aligns with the rubric with specific reference to the criterias used in awarding a grade to each grading criteria.
     - the output to the cordinator agent should be a CSV line with the following columns:{agent_categories}
     DO NOT MODIFY THE SCORE, YOUR ASSIGNED SCORE SHOULD BE MORE THAN THE ASSIGNED MAXIMUM FROM THE RUBRIC.
     RETURN YOUR ASSIGNED SCORE AND NOT A PERCENTAGE OR RATIO OF THE TOTAL SCORE.
@@ -63,7 +66,7 @@ reflection:
     Avoid infinite loops or repeated review cycles.
   expected_output: >
     One of two possible outputs:
-    (1) If both {output_folder}/{summary_file_name} and {output_folder}/{grader_agent_file_name} are valid, respond with: "Approved: Both {output_folder}/{summary_file_name} and {output_folder}/{grader_agent_file_name} are valid and final."
+    (1) If both {output_folder}/{summary_file_name} and {output_folder}/{grader_agent_file_name} are valid and AverageFeedbackAdherenceToRubrics and FeedbackSimilarityScore are not all 0 for all submissions in {output_folder}/{summary_file_name}, respond with: "Approved: Both {output_folder}/{summary_file_name} and {output_folder}/{grader_agent_file_name} are valid and final."
     (2) If any file has problems, respond with a polite, specific feedback message explaining exactly what issues were found (e.g., extra text, wrong headers, bad formatting) and requesting the coordinator agent to fix them.
     Your review should follow a clear, planned, and step-by-step chain of thought.
     Your response should be precise, efficient, and clear.

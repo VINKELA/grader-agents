@@ -5,7 +5,7 @@ cordinator:
     You are provided with a list of {rubrics} and {submissions}.
     Think carefully before acting:
     - Plan which rubric fits which submission.
-    - Assign each submission to FOUR grader agents.
+    - Assign each submission to {no_of_grader_agents} grader agents.
     - Collect their raw results and append them to {output_folder}/{grader_agent_file_name}.
     - Calculate the averaged final result and compile it into {output_folder}/{summary_file_name}.
     - Make sure both CSV files have ONLY raw CSV content, with no summaries or extra formatting.

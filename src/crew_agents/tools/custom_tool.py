@@ -1,15 +1,15 @@
+from collections import defaultdict
 import json
 from crewai.tools import BaseTool
-from typing import Type, List, Dict, Optional
+from typing import Type, List, Dict, Optional, Any
 from datetime import datetime
-from pydantic import BaseModel, Field
-
-import matplotlib.pyplot as plt
+from pydantic import BaseModel, Field, PrivateAttr
 import os
-
 import csv
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
+from sentence_transformers import SentenceTransformer
+import numpy as np
+from torch import cosine_similarity
+
 class FileWriterToolInput(BaseModel):
     """Input schema for FileWriterTool."""
     data: List[dict] = Field(description="List of grading records to save")
@@ -70,37 +70,99 @@ class FileWriterTool(BaseTool):
                 "timestamp": datetime.now().isoformat()
             })
 
-class CalculateMeanScoresInput(BaseModel):
-    """Input schema for CalculateMeanScoresTool."""
-    scores_json: str = Field(description="A JSON string containing  scores and feedbacks for a submission."),
-    rubric_keywords: List[str] = Field(description="List of rubric keywords.")
-
-class CalculateMeanScoresTool(BaseTool):
-    name: str ="calculate_mean_scores"
-    description: str = (
-        "Calculates the mean score across four grader agents' outputs "
-        "and computes the feedback adherence to rubrics"
+class GradingAnalysisInput(BaseModel):
+    """Input schema for ComprehensiveGradingAnalyzer."""
+    grading_data: List[Dict] = Field(..., description="List of raw grading records from all agents")
+    numeric_fields: List[str] = Field(
+        default=["Content", "Organization", "WordChoice", "SentenceFluency", "Conventions"],
+        description="Numeric columns to average"
     )
-    args_schema: Type[BaseModel]  = CalculateMeanScoresInput
+    rubric_keywords: List[str] = Field(
+        default=["content", "organization", "word choice", "sentence fluency", "conventions"],
+        description="Keywords from rubric for feedback analysis"
+    )
 
-    def _run(self, scores_json: str, rubric_keywords:List[str]) -> str:
-        data = json.loads(scores_json)
-        categories = ['AverageContent', 'AverageOrganization', 'AverageWordChoice', 'AverageSentenceFluency', 'AverageConventions' 
-                            ]
-        mean_scores = {}
+class ComprehensiveGradingAnalyzer(BaseTool):
+    name: str = "comprehensive_grading_analyzer"
+    description: str = (
+        "Performs complete grading analysis including score averaging, "
+        "feedback similarity measurement, and rubric adherence scoring. "
+        "Returns consolidated results for each submission."
+    )
+    args_schema: Type[BaseModel] = GradingAnalysisInput
+    _model: SentenceTransformer = PrivateAttr()
 
-        for category in categories:
-            mean_scores[category] = sum(agent[category] for agent in data) / len(data)
-        #get feedback list from all agents
-        feedbacks = [agent['Feedback'] for agent in data]
-        #caluculate the average feedback adherence to rubrics
-        adherences = [calculate_rubrics_adherence(rubric_keywords, feedback) for feedback in feedbacks]
-        mean_scores["AverageFeedbackAdherenceToRubrics"] = sum(float(ad) for ad in adherences) / len(adherences)
-        #calcuate feedback similarity score
-        vectorizer = TfidfVectorizer().fit_transform(feedbacks)
-        result = {**mean_scores, 'FeedbackSimilarityScore': vectorizer}
-        return json.dumps(result)
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._model = SentenceTransformer('all-MiniLM-L6-v2')
 
+    def _calculate_similarity(self, feedbacks: List[str]) -> float:
+        """Calculate cosine similarity between multiple feedback texts"""
+        if len(feedbacks) < 2:
+            return 1.0  # Perfect similarity if only one feedback
+            
+        embeddings = np.array(self._model.encode(feedbacks, convert_to_tensor=False))
+        if len(embeddings.shape) == 1:
+            embeddings = embeddings.reshape(1, -1)
+            
+        similarity_matrix = cosine_similarity(embeddings)
+        np.fill_diagonal(similarity_matrix, 0)
+        return float(np.mean(similarity_matrix))
+
+    def _calculate_adherence(self, feedback: str, keywords: List[str]) -> float:
+        """Calculate percentage of rubric keywords covered in feedback"""
+        if not feedback or not keywords:
+            return 0.0
+        feedback_lower = feedback.lower()
+        matches = sum(keyword.lower() in feedback_lower for keyword in keywords)
+        return (matches / len(keywords)) * 100 if keywords else 0.0
+
+    def _run(self, grading_data: List[Dict], numeric_fields: List[str], rubric_keywords: List[str]) -> List[Dict]:
+        # Group submissions by EssayID and PromptID
+        grouped = defaultdict(list)
+        for record in grading_data:
+            if not isinstance(record, dict):
+                continue
+            try:
+                key = (int(record.get("EssayID", 0)), int(record.get("PromptID", 0)))
+                grouped[key].append(record)
+            except (ValueError, TypeError):
+                continue
+
+        results = []
+        for (essay_id, prompt_id), records in grouped.items():
+            if not records:
+                continue
+
+            # Calculate average scores
+            avg_record = {
+                "EssayID": essay_id,
+                "PromptID": prompt_id
+            }
+            
+            for field in numeric_fields:
+                values = [float(r[field]) for r in records if field in r and isinstance(r[field], (int, float))]
+                avg_record[f"Average{field}"] = round(np.mean(values), 2) if values else 0.0
+
+            # Analyze feedback
+            feedbacks = [r["Feedback"] for r in records if isinstance(r.get("Feedback"), str)]
+            
+            similarity = self._calculate_similarity(feedbacks) if feedbacks else 0.0
+            adherence_scores = [
+                self._calculate_adherence(fb, rubric_keywords) 
+                for fb in feedbacks
+                if isinstance(fb, str)
+            ]
+            avg_adherence = np.mean(adherence_scores) if adherence_scores else 0.0
+
+            avg_record.update({
+                "FeedbackSimilarityScore": round(similarity, 2),
+                "AverageFeedbackAdherenceToRubrics": round(avg_adherence, 2)
+            })
+            
+            results.append(avg_record)
+            
+        return results
 class ReadFileInput(BaseModel):
     """Input schema for ReadFileTool."""
     file_path: str = Field(description="The full path to the grader.csv file to read and review.")
@@ -120,35 +182,59 @@ class ReadFileTool(BaseTool):
             return content
         except Exception as e:
             return f"Error reading file: {e}"
-        
 
+# ======================
+# 3. FINAL FILE WRITER
+# ======================
+class FinalFileWriterInput(BaseModel):
+    """Input schema for FinalFileWriter."""
+    data: List[Dict] = Field(..., description="List of processed grading records to save")
+    file_path: str = Field(..., description="Output file path (auto-appends .csv if missing)")
+    mode: str = Field(default="w", description="File mode: 'w' (write) or 'a' (append)")
 
-def calculate_rubrics_adherence(rubric_keywords: list, feedback: str) -> str:
-    count = sum(1 for kw in rubric_keywords if kw.lower() in feedback.lower())
-    score = (count / len(rubric_keywords)) * 100 if rubric_keywords else 0
-    return str(score)
-
-
-class FeedbackSimilarityInput(BaseModel):
-    """Input schema for FeedbackSimilarityTool."""
-    feedback_list: list = Field(..., description="List of feedback strings from graders.")
-
-class FeedbackSimilarityTool(BaseTool):
-    name: str = "calculate_feedback_similarity"
+class FinalFileWriter(BaseTool):
+    name: str = "final_grades_writer"
     description: str = (
-        "Calculates similarity score between multiple feedbacks using cosine similarity over TF-IDF vectors."
+        "Writes final aggregated grades with feedback analysis to CSV. "
+        "Ensures standardized output format with required fields."
     )
-    args_schema: Type[BaseModel] = FeedbackSimilarityInput
+    args_schema: Type[BaseModel] = FinalFileWriterInput
 
-    def _run(self, feedback_list: list) -> str:
-        if len(feedback_list) < 2:
-            return "100.0"  # Perfect similarity if only one input
-        vectorizer = TfidfVectorizer().fit_transform(feedback_list)
-        similarity_matrix = cosine_similarity(vectorizer)
-        n = len(feedback_list)
-        total_sim = sum(
-            similarity_matrix[i, j]
-            for i in range(n) for j in range(i + 1, n)
-        )
-        avg_sim = total_sim / (n * (n - 1) / 2)
-        return str(avg_sim * 100)
+    def _run(self, data: List[Dict], file_path: str, mode: str = "w") -> str:
+        required_fields = [
+            "EssayID", "PromptID", 
+            "AverageContent", "AverageOrganization", 
+            "AverageWordChoice", "AverageSentenceFluency",
+            "AverageConventions", "FeedbackSimilarityScore",
+            "AverageFeedbackAdherenceToRubrics"
+        ]
+        
+        if not file_path.lower().endswith('.csv'):
+            file_path = f"{file_path}.csv"
+        
+        try:
+            clean_data = []
+            for record in data:
+                clean_record = {field: record.get(field, "") for field in required_fields}
+                clean_data.append(clean_record)
+
+            file_exists = os.path.exists(file_path) and os.path.getsize(file_path) > 0
+            with open(file_path, mode, newline='') as f:
+                writer = csv.DictWriter(f, fieldnames=required_fields)
+                if not file_exists or mode == 'w':
+                    writer.writeheader()
+                writer.writerows(clean_data)
+
+            return json.dumps({
+                "status": "success",
+                "path": os.path.abspath(file_path),
+                "records": len(clean_data),
+                "timestamp": datetime.now().isoformat()
+            })
+
+        except Exception as e:
+            return json.dumps({
+                "status": "error",
+                "error": str(e),
+                "timestamp": datetime.now().isoformat()
+            })

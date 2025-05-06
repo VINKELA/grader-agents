@@ -2,10 +2,8 @@ from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from typing import List
-from crew_agents.tools.custom_tool import FileWriterTool, ReadFileTool,FeedbackSimilarityTool
-# If you want to run a snippet of code before or after the crew starts,
-# you can use the @before_kickoff and @after_kickoff decorators
-# https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
+from crew_agents.tools.custom_tool import FileWriterTool, ReadFileTool, FinalFileWriter,ComprehensiveGradingAnalyzer
+
 
 @CrewBase
 class CrewAgents():
@@ -13,6 +11,9 @@ class CrewAgents():
 
     agents: List[BaseAgent]
     tasks: List[Task]
+    grader_llm: str = "gpt-3.5-turbo" 
+    cordinator_llm: str = "gpt-4o"
+    reflector_llm: str = "gpt-3.5-turbo"   
 
     # Learn more about YAML configuration files here:
     # Agents: https://docs.crewai.com/concepts/agents#yaml-configuration-recommended
@@ -26,6 +27,7 @@ class CrewAgents():
         return Agent(
             config=self.agents_config['grader'], # type: ignore[index]
             verbose=True,
+            llm=self.grader_llm
         )
 
     @agent
@@ -33,8 +35,11 @@ class CrewAgents():
         return Agent(
             config=self.agents_config['cordinator'], # type: ignore[index]
             verbose=True,
+            llm=self.cordinator_llm,
             tools=[
-                FileWriterTool(), FeedbackSimilarityTool() # type: ignore[arg-type]
+                FileWriterTool(),
+                ReadFileTool(),
+                ComprehensiveGradingAnalyzer()                
             ]
             
         )
@@ -44,8 +49,9 @@ class CrewAgents():
             config=self.agents_config['reflector'], # type: ignore[index]
             verbose=True,
             tools=[
-                ReadFileTool() # type: ignore[arg-type]
-            ]
+                ReadFileTool() 
+            ],
+            llm=self.reflector_llm
             
         )
     
