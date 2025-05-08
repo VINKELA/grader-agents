@@ -4,3 +4,7 @@ __pycache__/
 .venv/
 grader.csv
 gradedData/*
+ungraded data/*
+result/*
+grader_agent.csv
+timeLog.txt_*

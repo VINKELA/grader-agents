@@ -1,3 +1,4 @@
+import os
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
@@ -11,9 +12,10 @@ class CrewAgents():
 
     agents: List[BaseAgent]
     tasks: List[Task]
-    grader_llm: str = "gpt-3.5-turbo" 
-    cordinator_llm: str = "gpt-4o"
-    reflector_llm: str = "gpt-3.5-turbo"   
+    grader_llm: str = "gemini/gemini-2.0-flash-lite-001" 
+    cordinator_llm: str = "gemini/gemini-2.5-pro-preview-05-06"
+    reflector_llm: str = "gemini/gemini-2.0-flash-lite-001"    
+    temperature = float(os.getenv("TEMPERATURE", 0.0))
 
     # Learn more about YAML configuration files here:
     # Agents: https://docs.crewai.com/concepts/agents#yaml-configuration-recommended
@@ -27,7 +29,8 @@ class CrewAgents():
         return Agent(
             config=self.agents_config['grader'], # type: ignore[index]
             verbose=True,
-            llm=self.grader_llm
+            llm=self.grader_llm,
+            temperature= self.temperature
         )
 
     @agent
@@ -39,8 +42,8 @@ class CrewAgents():
             tools=[
                 FileWriterTool(),
                 ReadFileTool(),
-                ComprehensiveGradingAnalyzer()                
-            ]
+            ],
+            temperature= self.temperature
             
         )
     @agent
@@ -51,7 +54,8 @@ class CrewAgents():
             tools=[
                 ReadFileTool() 
             ],
-            llm=self.reflector_llm
+            llm=self.reflector_llm,
+            temperature= self.temperature
             
         )
     
@@ -64,7 +68,7 @@ class CrewAgents():
     def cordination(self) -> Task:
         return Task(
             config=self.tasks_config['cordination'],
-            output_file= "log.txt",
+            output_file= os.environ.get("OUTPUT_FILE"),
         )
     @task
     def reflection(self) -> Task:

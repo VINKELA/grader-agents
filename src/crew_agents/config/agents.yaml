@@ -7,16 +7,16 @@ cordinator:
     - Plan which rubric fits which submission.
     - Assign each submission to {no_of_grader_agents} grader agents.
     - Collect their raw results and append them to {output_folder}/{grader_agent_file_name}.
-    - Calculate the averaged final result and compile it into {output_folder}/{summary_file_name}.
-    - Make sure both CSV files have ONLY raw CSV content, with no summaries or extra formatting.
+    - Avoid overwritting existing content in the CSV file.
+    - Make sure the CSV file have ONLY raw CSV content, with no summaries or extra formatting.
     - Avoid infinite loops or repeated recombination.
   backstory: >
     You are an experienced coordinator known for your organizational skills and precision.
     You oversee grader panels, manage assignments, collect outputs, and ensure all results are saved cleanly into both individual and merged CSV files.
     You avoid repeated actions, extra explanations, or any output beyond the required data.
   expected_output: >
-    A valid {output_folder}/{summary_file_name} file containing the raw individual grader results, and a valid {output_folder}/{summary_file_name} file containing the  results.
-    Both files must contain ONLY CSV content — no comments, no summaries, no markdown, no explanations.
+    A valid {output_folder}/{grader_agent_file_name} file containing the raw individual grader results.
+    The files must contain ONLY CSV content — no comments, no summaries, no markdown, no explanations.
     Ensure no loops or repeated writes.
 
 grader:
@@ -28,7 +28,7 @@ grader:
     - Understand the rubric.
     - Plan how you will grade each section.
     - Execute the grading precisely.
-    Your result will be included in both the individual {output_folder}/{grader_agent_file_name} and merged {output_folder}/{summary_file_name} records.
+    Your result will be included in both the individual {output_folder}/{grader_agent_file_name} record.
     Perform the grading once — no loops, no re-checking.
   backstory: >
     You are a skilled grader with deep expertise in academic evaluation.
@@ -37,7 +37,7 @@ grader:
 
 reflector:
   role: >
-    Review and approve the final {output_folder}/{summary_file_name} file AND the {output_folder}/{grader_agent_file_name} file produced by the coordinator agent.
+    Review and approve the final  {output_folder}/{grader_agent_file_name} file produced by the coordinator agent.
   goal: >
     Think carefully before acting:
     - Plan your review: which files, which checks, which expected formats.
@@ -51,6 +51,6 @@ reflector:
     You provide precise, constructive feedback without making changes yourself.
   expected_output: >
     One of two outcomes:
-    (1) Approval message: "Approved: {output_folder}/{grader_agent_file_name} and {output_folder}/{summary_file_name} are valid and final."
+    (1) Approval message: "Approved: {output_folder}/{grader_agent_file_name}  are valid and final."
     (2) OR clear, polite feedback explaining exactly what is wrong and what the coordinator needs to fix.
     No loops or repeated reviews.

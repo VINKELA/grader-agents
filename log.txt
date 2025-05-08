@@ -1,6 +1,0 @@
-The grading process completed successfully for the given essays. Each essay was evaluated using three independent grader agents. Raw scores for Content, Organization, Word Choice, Sentence Fluency, Conventions, and Feedback were collected into `gradedData/grader_agent.csv`. Average scores for each evaluation category were calculated manually due to a tool error, and results were compiled into `gradedData/grades.csv`.
-
-- `gradedData/grader_agent.csv` includes detailed individual scores from each grader with feedback.
-- `gradedData/grades.csv` contains the averaged scores and feedback similarity for each essay.
-
-All CSV files meet the requirement of containing only raw CSV content with no additional formatting or explanations.
