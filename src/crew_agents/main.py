@@ -20,29 +20,24 @@ def run():
     """
     Run the crew.
     """
-    prompt_id = 1
-    arr = [(0, 4),(4, 8), (8, 11)]
-    for i in range(len(arr)):
-    
-        rubrics, submissions = load_data(prompt_id=prompt_id)
-        submissions = submissions[arr[i][0]:arr[i][1]]
+    rubrics, submissions = load_data()
+    for i in range(len(submissions)):
         input = {
             'rubrics': rubrics,
-            'submissions': submissions,
+            'submissions': submissions[i],
             'max_number_of_retries': 1,
-            'output_folder': "gradedData",
+            'output_folder': os.environ.get("OUTPUT_FOLDER"),
             'grader_agent_file_name': os.environ.get("OUTPUT_FILE"),
-            'agent_categories':  ['EssayID','PromptID','Content','Adherence','Language','PromptAdherence','Narrativity', 'Feedback'] 
-            if prompt_id > 2 else ['EssayID','PromptID','Content', 'Organization','WordChoice','SentenceFluency', 'Conventions',"Feedback"],
+            'agent_categories':  [os.environ.get("OUTPUT_FILE_HEADERS")], 
             'no_of_grader_agents': 3
         }
         try:
             #write to timeLog.tdt
-            with open(f"timeLog.txt_{prompt_id}", "a") as f:
+            log_file = os.environ.get("TIME_LOG_FILE")
+            with open(log_file, "a") as f:
                 # write count of submissions
-                f.write(f"Number of submissions: {len(submissions)}\n")
+                f.write(f"Number of submissions: {1}\n")
                 # write prompt id
-                f.write(f"Prompt ID: {prompt_id}\n")
                 f.write(f"Start time: {datetime.now().isoformat()}\n")
                 start = time.time()
                 CrewAgents().crew().kickoff(inputs=input)
@@ -51,6 +46,7 @@ def run():
                 f.write(f"Execution time: {end - start} seconds\n")
         except Exception as e:
             raise Exception(f"An error occurred while running the crew: {e}")
+        time.sleep(10)  # Sleep for 1 second between each submission
 
     
    
@@ -94,27 +90,59 @@ def test():
         raise Exception(f"An error occurred while testing the crew: {e}")
     
 
-def load_data(prompt_id):
+def load_data():
     print("Loading ASAP++ dataset...")
     
-    guidelines_dir = 'C:\\Users\\NOBZ\\source\\repos\\thesis\\crew_agents\\prompts\\guidelines'
-    submissions_file = f"C:/Users/NOBZ/source/repos/thesis/crew_agents/submissions/training_data_{prompt_id}.csv"
-    
+    rubric_dir = os.environ.get("RUBRICS_FOLDER")
+    folder = os.environ.get("SUBMISSION_FOLDER")
+    file = os.environ.get("SUBMISSION_FILE")
+    #prompt_folder = os.path.join(rubric_dir, f'prompt{prompt_id}')
+    rubric_json_file = os.path.join(rubric_dir, f'{os.environ.get("RUBRIC_FILE")}')
+
+    submissions_file = os.path.join(folder, file)
+    if not rubric_json_file or not submissions_file:
+        raise ValueError("Please set the RUBRIC_FOLDER variable.")
+    if not submissions_file:
+        raise ValueError("Please set the SUBMISSION_FOLDER environment variables.")
+
+    #validate promp
+
     # Initialize lists to store results
     rubric_list = []
     submission_list = []
+    output_folder = os.environ.get("OUTPUT_FOLDER")
+    output_file = os.environ.get("OUTPUT_FILE")
+    output_file = os.path.join(output_folder, output_file)
+    #check if output folder exists
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+    #check if output file is a csv file
+    if not output_file.endswith('.csv'):
+        raise ValueError("Output file must be a CSV file")
+    if not rubric_json_file.endswith('.json'):
+        raise ValueError("Rubric file must be a JSON file")
     
-    # Load rubrics
-    prompt_folder = os.path.join(guidelines_dir, f'prompt{prompt_id}')
-    rubric_json_file = os.path.join(prompt_folder, f'rubric.json')
+    #check if submission file is a csv file
+    if not submissions_file.endswith('.csv'):
+        raise ValueError("Submission file must be a CSV file")
+    
+    #check if output file exists
+    if not os.path.exists(output_file):
+        #create the file
+        with open(output_file, 'w') as f:
+            #write the header
+            f.write(os.environ.get("OUTPUT_FILE_HEADERS"))
 
+    # Load rubrics
     if os.path.exists(rubric_json_file):
         with open(rubric_json_file, 'r') as f:
             rubric_data = json.load(f)
             rubric_list.append(rubric_data)  # Add to rubric list
             rubric_df = pd.json_normalize(rubric_data)
-            print(f"📄 Prompt-{prompt_id} rubric.json head:")
+            print(f"📄 rubric head:")
             print(rubric_df.head())
+    else:
+        raise FileNotFoundError(f"Rubric file {rubric_json_file} not found.")
 
     # Load submissions
     submissions_df = pd.read_csv(submissions_file)

@@ -3,7 +3,7 @@ from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from typing import List
-from crew_agents.tools.custom_tool import FileWriterTool, ReadFileTool, FinalFileWriter,ComprehensiveGradingAnalyzer
+from crew_agents.tools.custom_tool import FileWriterTool, ReadFileTool
 
 
 @CrewBase
@@ -12,10 +12,13 @@ class CrewAgents():
 
     agents: List[BaseAgent]
     tasks: List[Task]
-    grader_llm: str = "gemini/gemini-2.0-flash-lite-001" 
-    cordinator_llm: str = "gemini/gemini-2.5-pro-preview-05-06"
-    reflector_llm: str = "gemini/gemini-2.0-flash-lite-001"    
-    temperature = float(os.getenv("TEMPERATURE", 0.0))
+
+  
+    grader_llm: str = os.getenv("GRADER_LLM") 
+    cordinator_llm: str = os.getenv("COORDINATOR_LLM")
+    reflector_llm: str = os.getenv("REFLECTOR_LLM")
+
+    temperature = float(os.getenv("TEMPERATURE"))
 
     # Learn more about YAML configuration files here:
     # Agents: https://docs.crewai.com/concepts/agents#yaml-configuration-recommended
@@ -29,8 +32,7 @@ class CrewAgents():
         return Agent(
             config=self.agents_config['grader'], # type: ignore[index]
             verbose=True,
-            llm=self.grader_llm,
-            temperature= self.temperature
+            temperature= self.temperature,
         )
 
     @agent
@@ -38,12 +40,10 @@ class CrewAgents():
         return Agent(
             config=self.agents_config['cordinator'], # type: ignore[index]
             verbose=True,
-            llm=self.cordinator_llm,
             tools=[
-                FileWriterTool(),
-                ReadFileTool(),
+                FileWriterTool()
             ],
-            temperature= self.temperature
+            temperature= self.temperature,
             
         )
     @agent
@@ -54,8 +54,7 @@ class CrewAgents():
             tools=[
                 ReadFileTool() 
             ],
-            llm=self.reflector_llm,
-            temperature= self.temperature
+            temperature= self.temperature,
             
         )
     
@@ -68,7 +67,7 @@ class CrewAgents():
     def cordination(self) -> Task:
         return Task(
             config=self.tasks_config['cordination'],
-            output_file= os.environ.get("OUTPUT_FILE"),
+            output_file= 'cordination.txt',
         )
     @task
     def reflection(self) -> Task:

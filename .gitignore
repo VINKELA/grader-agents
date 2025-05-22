@@ -7,4 +7,5 @@ gradedData/*
 ungraded data/*
 result/*
 grader_agent.csv
-timeLog.txt_*
+time_log.txt*
+cordination.txt
