@@ -9,3 +9,4 @@ result/*
 grader_agent.csv
 time_log.txt*
 cordination.txt
+analysis.ipynb
